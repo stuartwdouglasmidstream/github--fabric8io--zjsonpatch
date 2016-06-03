@@ -1,17 +1,33 @@
+/**
+ * Copyright (C) 2016 Red Hat, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.flipkart.zjsonpatch;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import org.apache.commons.collections4.ListUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+import static com.flipkart.zjsonpatch.internal.collections4.ListUtils.longestCommonSubsequence;
+import static com.flipkart.zjsonpatch.internal.guava.Lists.newArrayList;
+import static com.flipkart.zjsonpatch.internal.guava.Preconditions.checkArgument;
 
 /**
  * User: gopi.vishwakarma
@@ -23,8 +39,7 @@ public final class JsonDiff {
 
     private JsonDiff() {}
 
-    private final static class EncodePathFunction implements Function<Object, String> {
-        @Override
+    private final static class EncodePathFunction {
         public String apply(Object object) {
             String path = object.toString(); // see http://tools.ietf.org/html/rfc6901#section-4
             return path.replaceAll("~", "~0").replaceAll("/", "~1");
@@ -174,8 +189,14 @@ public final class JsonDiff {
     }
 
     private static String getArrayNodeRepresentation(List<Object> path) {
-        return Joiner.on('/').appendTo(new StringBuilder().append('/'),
-                Iterables.transform(path, ENCODE_PATH_FUNCTION)).toString();
+        StringBuilder sb = new StringBuilder();
+        for (Object o : path) {
+          sb.append('/').append(ENCODE_PATH_FUNCTION.apply(o));
+        }
+        if (sb.length() == 0) {
+          sb.append('/');
+        }
+        return sb.toString();
     }
 
 
@@ -308,10 +329,9 @@ public final class JsonDiff {
     }
 
     private static List<JsonNode> getLCS(final JsonNode first, final JsonNode second) {
+        checkArgument(first.isArray(), "LCS can only work on JSON arrays");
+        checkArgument(second.isArray(), "LCS can only work on JSON arrays");
 
-        Preconditions.checkArgument(first.isArray(), "LCS can only work on JSON arrays");
-        Preconditions.checkArgument(second.isArray(), "LCS can only work on JSON arrays");
-
-        return ListUtils.longestCommonSubsequence(Lists.newArrayList(first), Lists.newArrayList(second));
+        return longestCommonSubsequence(newArrayList(first), newArrayList(second));
     }
 }

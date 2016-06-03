@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.flipkart.zjsonpatch;
+package com.flipkart.zjsonpatch.internal.guava;
 
-import java.io.IOException;
+import java.util.ArrayList;
 
-/**
- * @author ctranxuan (streamdata.io).
- */
-public class Rfc6902SamplesTest extends AbstractTest {
-    public Rfc6902SamplesTest() throws IOException {
-        super("rfc6902-samples");
+public class Lists {
+
+  public static <E> ArrayList<E> newArrayList(Iterable<? extends E> elements) {
+    ArrayList<E> list = new ArrayList();
+    for (E element : elements) {
+      list.add(element);
     }
+    return list;
+  }
 }
