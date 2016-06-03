@@ -28,6 +28,7 @@
   <groupId>io.fabric8</groupId>
   <artifactId>zjsonpatch</artifactId>
   <version>0.3-SNAPSHOT</version>
+  <packaging>bundle</packaging>
 
   <name>zjsonpatch</name>
   <description>Java Library to find / apply JSON Patches according to RFC 6902</description>
@@ -74,6 +75,16 @@
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
     <maven.enforcer.plugin.version>1.3.1</maven.enforcer.plugin.version>
+
+    <osgi.import>
+      *
+    </osgi.import>
+    <osgi.export>
+      io.fabric8.zjsonpatch
+    </osgi.export>
+    <osgi.private>
+      io.fabric8.zjsonpatch.internal*
+    </osgi.private>
   </properties>
 
   <build>
@@ -237,6 +248,33 @@
             <Makefile>SCRIPT_STYLE</Makefile>
           </mapping>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <executions>
+          <execution>
+            <id>bundle</id>
+            <phase>package</phase>
+            <goals>
+              <goal>bundle</goal>
+            </goals>
+            <configuration>
+              <instructions>
+                <Bundle-Name>${project.name}</Bundle-Name>
+                <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+                <Export-Package>${osgi.export}</Export-Package>
+                <Import-Package>${osgi.import}</Import-Package>
+                <DynamicImport-Package>${osgi.dynamic.import}</DynamicImport-Package>
+                <Private-Package>${osgi.private}</Private-Package>
+                <Require-Bundle>${osgi.bundles}</Require-Bundle>
+                <Bundle-Activator>${osgi.activator}</Bundle-Activator>
+                <Export-Service>${osgi.export.service}</Export-Service>
+              </instructions>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
